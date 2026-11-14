@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Anti-Grunt",
+  "version": "0.1.0",
+  "description": "Mutes throat clearing, coughs and grunts in the audio of the tab you are watching.",
+  "minimum_chrome_version": "116",
+  "permissions": ["tabCapture", "offscreen", "activeTab", "storage"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_title": "Anti-Grunt", "default_popup": "popup.html" },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

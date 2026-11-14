@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Anti-Grunt</title>
+<style>
+  :root { color-scheme: light dark; --accent: #2f6f4f; --muted: #6b7280; }
+  body { margin: 0; padding: 14px 16px; width: 280px; font: 13px/1.45 system-ui, sans-serif; }
+  h1 { margin: 0 0 2px; font-size: 15px; }
+  p { margin: 0; }
+  .status { color: var(--muted); min-height: 2.9em; }
+  .error { color: #b3261e; }
+  button {
+    width: 100%; margin: 10px 0 14px; padding: 9px; border: 0; border-radius: 6px;
+    background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button.on { background: #7a2e2e; }
+  button:disabled { opacity: .6; cursor: default; }
+  fieldset { margin: 0 0 12px; padding: 0; border: 0; }
+  legend { padding: 0; margin-bottom: 4px; font-weight: 600; }
+  label { display: block; }
+  input[type=range] { width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
+  input[type=checkbox] { accent-color: var(--accent); }
+  .ends { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+  .note { color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+  <h1>Anti-Grunt</h1>
+  <p class="status" id="status">Loading…</p>
+  <button id="toggle" disabled>Start on this tab</button>
+
+  <fieldset id="live" hidden>
+    <legend>Live readout</legend>
+    <div>Hearing: <b id="heard">–</b></div>
+    <div>Score now: <b id="now">–</b> · peak: <b id="peak">–</b> <a href="#" id="resetPeak">reset</a></div>
+    <div>Mutes at: <b id="trigger">–</b></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Sensitivity</legend>
+    <input type="range" id="sensitivity" min="0" max="100" step="1">
+    <div class="ends"><span>Mutes less</span><span>Mutes more</span></div>
+  </fieldset>
+
+  <fieldset id="sounds">
+    <legend>Sounds to mute</legend>
+  </fieldset>
+
+  <p class="note">Sound plays about 1.5 seconds behind the picture so each noise can be caught before you hear it.</p>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
