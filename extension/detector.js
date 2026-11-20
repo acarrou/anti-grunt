@@ -4,8 +4,28 @@
 import { AudioClassifier, FilesetResolver } from './vendor/audio_bundle.mjs';
 
 export const WINDOW_SECONDS = 0.975; // YAMNet's native analysis window
-export const HOP_SECONDS = 0.2;
+// Only the most recent slice of audio is classified, centred in an otherwise
+// silent window. A short grunt under speech fills most of a half-second slice
+// but only a third of a full window, where the speech drowns it out: on test
+// coughs mixed quietly into speech, full windows missed 9 of 15 and slices
+// missed 1 or 2, with fewer false mutes.
+export const SLICE_SECONDS = 0.5;
+export const HOP_SECONDS = 0.08;
 export const PAD_SECONDS = 0.12;
+const FADE_SECONDS = 0.01; // softens the slice edges so they do not click
+
+// Copies `slice` into the middle of the silent model input `out`.
+export function frameSlice(slice, out, rate) {
+  const at = (out.length - slice.length) >> 1;
+  const fade = Math.round(FADE_SECONDS * rate);
+  out.fill(0);
+  out.set(slice, at);
+  for (let i = 0; i < fade; i++) {
+    out[at + i] *= i / fade;
+    out[at + slice.length - 1 - i] *= i / fade;
+  }
+  return out;
+}
 
 export async function createClassifier(baseUrl) {
   const fileset = await FilesetResolver.forAudioTasks(new URL('vendor/wasm', baseUrl).href);
@@ -36,14 +56,14 @@ export function scoreSounds(results, sounds) {
 }
 
 // Tracks runs of consecutive positive windows and returns the frame range to
-// silence. Each window ends at frame `end` and covers `windowFrames`.
+// silence. Each window (here, a classified slice) ends at frame `end` and
+// covers `windowFrames`.
 //
-// A positive window only says the sound is somewhere inside it. Measured on
-// real coughs, the first positive window can hold anything from the first
-// 0.2 s of the sound to all of it, and the sound usually carries on past that
-// window's end. So the range runs from the start of the first positive window
-// to the end of the latest one: it never shrinks, and it grows on every hop
-// while the run lasts, which is safe because playback is delayed past it.
+// A positive window only says the sound is somewhere inside it, and the sound
+// usually carries on past that window's end. So the range runs from the start
+// of the first positive window to the end of the latest one: it never
+// shrinks, and it grows on every hop while the run lasts, which is safe
+// because playback is delayed past it.
 export class RunTracker {
   constructor(windowFrames, padFrames) {
     this.windowFrames = windowFrames;

@@ -44,9 +44,28 @@ document.getElementById('resetPeak').addEventListener('click', (e) => {
   peakEl.textContent = pct(0);
 });
 
+const reportBox = document.getElementById('reportBox');
+const reportBtn = document.getElementById('report');
+const reportNote = document.getElementById('reportNote');
+document.getElementById('version').textContent = `Version ${chrome.runtime.getManifest().version}`;
+let reports = 0;
+
+reportBtn.addEventListener('click', async () => {
+  reportBtn.disabled = true;
+  try {
+    await send({ type: 'report' });
+    reports += 1;
+    reportNote.textContent = `Saved ${reports} to Downloads/anti-grunt. Keep watching and press again next time.`;
+  } catch (err) {
+    reportNote.textContent = String(err?.message ?? err);
+  }
+  reportBtn.disabled = false;
+});
+
 function render(error) {
   triggerEl.textContent = pct(settings.threshold);
   live.hidden = state.tabId == null;
+  reportBox.hidden = state.tabId == null;
   const active = state.tabId != null;
   const here = active && state.tabId === tab?.id;
   toggle.disabled = false;

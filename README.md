@@ -8,9 +8,9 @@ on Windows and Mac and never needs the video file.
 
 1. The extension captures the tab's audio, which silences the tab itself.
 2. The audio is played back about 1.5 seconds late.
-3. During that delay, Google's YAMNet sound classifier listens to it. When it
-   hears one of the selected sounds, that stretch is silenced before it
-   reaches your speakers.
+3. During that delay, Google's YAMNet sound classifier listens to it, half a
+   second at a time. When it hears one of the selected sounds, that stretch
+   is silenced before it reaches your speakers.
 
 Everything runs locally in the browser; no audio leaves the computer.
 
@@ -39,6 +39,6 @@ words, move it the other way. Changes apply immediately.
 ## Limits
 
 - Sound runs about 1.5 seconds behind the picture.
-- Each mute also drops up to about a second of speech just before the sound.
+- Each mute also drops up to about half a second of speech around the sound.
 - Detection is imperfect: some sounds get through and some words get cut.
 - It filters one tab at a time.

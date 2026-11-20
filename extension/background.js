@@ -49,11 +49,32 @@ async function stop() {
   await setState({ tabId: null, count: 0, last: null });
 }
 
+// Saves the last stretch of audio and the detector's decisions to Downloads,
+// for working out why a sound got through.
+async function report() {
+  const state = await getState();
+  if (state.tabId == null) throw new Error('Not running.');
+  const res = await chrome.runtime.sendMessage({ target: 'offscreen', type: 'snapshot' });
+  if (!res?.ok) throw new Error(res?.error ?? 'Could not save the report.');
+  const stamp = res.info.savedAt.replace(/[:.]/g, '-');
+  await chrome.downloads.download({ url: res.wavUrl, filename: `anti-grunt/miss-${stamp}.wav`, saveAs: false });
+  await chrome.downloads.download({
+    url: `data:application/json,${encodeURIComponent(JSON.stringify(res.info))}`,
+    filename: `anti-grunt/miss-${stamp}.json`,
+    saveAs: false,
+  });
+}
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === 'report-miss') report().catch(() => {});
+});
+
 async function handle(msg) {
   switch (msg.type) {
     case 'start': await start(msg); return getState();
     case 'stop': await stop(); return getState();
     case 'status': return getState();
+    case 'report': await report(); return getState();
     case 'ended': await stop(); return null;
     case 'detected': {
       const state = await getState();

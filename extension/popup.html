@@ -15,6 +15,7 @@
     background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer;
   }
   button.on { background: #7a2e2e; }
+  button.secondary { margin: 2px 0 4px; background: #4b5563; }
   button:disabled { opacity: .6; cursor: default; }
   fieldset { margin: 0 0 12px; padding: 0; border: 0; }
   legend { padding: 0; margin-bottom: 4px; font-weight: 600; }
@@ -37,6 +38,12 @@
     <div>Mutes at: <b id="trigger">–</b></div>
   </fieldset>
 
+  <fieldset id="reportBox" hidden>
+    <legend>A sound got through?</legend>
+    <button id="report" class="secondary">I just heard one</button>
+    <p class="note" id="reportNote">Press right after you hear it (or Alt+Shift+G). Saves the last 30 seconds to Downloads/anti-grunt for diagnosis.</p>
+  </fieldset>
+
   <fieldset>
     <legend>Sensitivity</legend>
     <input type="range" id="sensitivity" min="0" max="100" step="1">
@@ -47,6 +54,7 @@
     <legend>Sounds to mute</legend>
   </fieldset>
 
+  <p class="note" id="version"></p>
   <p class="note">Sound plays about 1.5 seconds behind the picture so each noise can be caught before you hear it.</p>
   <script type="module" src="popup.js"></script>
 </body>

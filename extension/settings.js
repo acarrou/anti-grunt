@@ -11,14 +11,21 @@ export const SOUND_CHOICES = [
 ];
 
 export const DEFAULT_SETTINGS = {
-  // Combined score (0..1) of the selected sounds needed to trigger a mute.
-  // Lower = more aggressive. Throat clearing over speech scores low, so this
-  // starts well below 0.5.
-  threshold: 0.15,
+  // Combined score of the selected sounds needed to trigger a mute. Lower =
+  // more aggressive. On test audio 0.25 gave no false mutes on plain speech.
+  threshold: 0.25,
   sounds: ['Throat clearing', 'Cough', 'Grunt'],
+  // Bumped when the scoring changes enough that a saved threshold no longer
+  // means the same thing.
+  scoring: 2,
 };
 
 export async function loadSettings() {
   const { settings } = await chrome.storage.local.get('settings');
-  return { ...DEFAULT_SETTINGS, ...settings };
+  const merged = { ...DEFAULT_SETTINGS, ...settings };
+  if (settings?.scoring !== DEFAULT_SETTINGS.scoring) {
+    merged.threshold = DEFAULT_SETTINGS.threshold;
+    merged.scoring = DEFAULT_SETTINGS.scoring;
+  }
+  return merged;
 }
