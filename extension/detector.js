@@ -35,18 +35,19 @@ export function scoreSounds(results, sounds) {
   return { ...best, heard: heard.label };
 }
 
-// Tracks runs of consecutive positive windows. Each window ends at frame
-// `end` and covers `windowFrames`. A short sound is inside every positive
-// window of its run, so it lies in their intersection: from the start of the
-// latest window to the end of the first. A sound longer than the window
-// instead spans from the first window's end to the latest window's start.
-// Taking min/max of those two points covers both cases; the range is refined
-// on every hop, which is safe because playback is delayed past it.
+// Tracks runs of consecutive positive windows and returns the frame range to
+// silence. Each window ends at frame `end` and covers `windowFrames`.
+//
+// A positive window only says the sound is somewhere inside it. Measured on
+// real coughs, the first positive window can hold anything from the first
+// 0.2 s of the sound to all of it, and the sound usually carries on past that
+// window's end. So the range runs from the start of the first positive window
+// to the end of the latest one: it never shrinks, and it grows on every hop
+// while the run lasts, which is safe because playback is delayed past it.
 export class RunTracker {
   constructor(windowFrames, padFrames) {
     this.windowFrames = windowFrames;
     this.padFrames = padFrames;
-    this.reachFrames = Math.round(windowFrames * 0.4);
     this.run = null;
     this.nextId = 1;
   }
@@ -59,15 +60,10 @@ export class RunTracker {
     }
     const isNew = !this.run;
     if (isNew) this.run = { id: this.nextId++, first: end };
-    const a = this.run.first;
-    const b = end - this.windowFrames;
-    // A long sound triggers windows that only partly overlap it, so its true
-    // edges lie beyond a and b by up to that partial overlap.
-    const reach = Math.min(Math.max(b - a, 0), this.reachFrames);
     return {
       id: this.run.id,
-      start: Math.max(0, Math.min(a, b) - reach - this.padFrames),
-      end: Math.max(a, b) + reach + this.padFrames,
+      start: Math.max(0, this.run.first - this.windowFrames - this.padFrames),
+      end: end + this.padFrames,
       isNew,
     };
   }

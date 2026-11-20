@@ -39,6 +39,6 @@ words, move it the other way. Changes apply immediately.
 ## Limits
 
 - Sound runs about 1.5 seconds behind the picture.
-- Each mute also drops a fraction of a second of speech around the sound.
+- Each mute also drops up to about a second of speech just before the sound.
 - Detection is imperfect: some sounds get through and some words get cut.
 - It filters one tab at a time.
